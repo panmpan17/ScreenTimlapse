@@ -52,10 +52,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     
     func startRecording() {
+        let dateFormat = DateFormatter()
+        dateFormat.dateFormat = "yyMMdd-HHmmss"
+
+        let date = Date()
+        let dateStr = dateFormat.string(from: date)
+
         let defaults = UserDefaults.standard
-        let exportPath = defaults.string(forKey: "ExportPath")!
-        var interval = defaults.float(forKey: "Interval")
+        var exportPath = defaults.string(forKey: "ExportPath")!
+        exportPath += "/" + dateStr
+
+        let docURL = URL(fileURLWithPath: exportPath)
+
+        if !FileManager.default.fileExists(atPath: docURL.absoluteString) {
+            print("\(docURL.absoluteString) not exist")
+            do {
+                try FileManager.default.createDirectory(at: docURL.absoluteURL, withIntermediateDirectories: true, attributes: nil)
+            } catch {
+                print(1, error.localizedDescription);
+            }
+        }
         
+        var interval = defaults.float(forKey: "Interval")
+
         if (interval < 0.1) {
             interval = 0.1
         }
