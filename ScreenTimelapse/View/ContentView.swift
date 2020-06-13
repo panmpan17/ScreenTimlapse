@@ -12,16 +12,35 @@ import SwiftUI
 struct ContentView: View {
     var appDelegate: AppDelegate;
     @State private var isRecording = false
+    @State private var isPausing = false
     
     var body: some View {
         VStack (spacing: 5) {
             VStack (spacing: 5) {
                 Button (action: {
-                    self.isRecording = true;
+                    self.isRecording = true
                     self.appDelegate.startRecording()
                 }) {
                     Text("Start Recording")
                 }.disabled(isRecording)
+                
+                if (!isPausing) {
+                    Button (action: {
+                        self.isPausing = true
+                        self.appDelegate.pauseRecording()
+                    }) {
+                        Text("Pause Recording").disabled(!isRecording)
+                    }
+                }
+                else {
+                    Button (action: {
+                        self.isPausing = false
+                        self.appDelegate.resumeRecording()
+                    }) {
+                        Text("Resume Recording").disabled(!isRecording)
+                    }
+                }
+                
                 Button (action: {
                     self.isRecording = false;
                     self.appDelegate.endRecording()
@@ -31,12 +50,13 @@ struct ContentView: View {
                 Button (action: self.appDelegate.openPreference) {
                     Text("Preference")
                 }
+                
                 Button (action: {
                     NSApplication.shared.terminate(self)
                 }) {
                     Text("Quit")
                 }
-            }.padding().frame(idealWidth: 150, maxWidth: 150, idealHeight: 130, maxHeight: 130)
+            }.padding().frame(idealWidth: 150, maxWidth: 150, idealHeight: 170, maxHeight: 170)
         }
     }
 }

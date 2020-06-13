@@ -18,6 +18,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     var timer: Timer?
     var screenShotNumber: Int = 0
+    var recordingPause: Bool = false
 
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
@@ -32,7 +33,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         self.statusBarItem = NSStatusBar.system.statusItem(withLength: CGFloat(NSStatusItem.variableLength))
         
         if let button = self.statusBarItem.button {
-            button.image = NSImage(named: "MenuBarIcon")
+            button.image = NSImage(named: "Idle")
             button.action = #selector(togglePopover(_:))
         }
     }
@@ -82,22 +83,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let width = defaults.integer(forKey: "ResizeWidth")
         let height = defaults.integer(forKey: "ResizeHeight")
 
-        statusBarItem.button?.image = NSImage(named: "ActiveMenuBarIcon")
+        statusBarItem.button?.image = NSImage(named: "Recording")
         screenShotNumber = 0
         timer = Timer.scheduledTimer(withTimeInterval: TimeInterval(interval), repeats: true, block: {t in
 //            let folder: String = chooseExportFolder()
+            if (!self.recordingPause) {
+                guard let img: CGImage = CGDisplayCreateImage(CGMainDisplayID()) else { return }
+                let url: URL = URL(fileURLWithPath: "\(exportPath)/\(self.screenShotNumber).jpg")
 
-            guard let img: CGImage = CGDisplayCreateImage(CGMainDisplayID()) else { return }
-            let url: URL = URL(fileURLWithPath: "\(exportPath)/\(self.screenShotNumber).jpg")
-
-            if (resizeImage) {
-                if (self.writeCGImage(self.resizeImage(img, maxWidth: Float(width), maxHeight: Float(height))!, url, kUTTypeJPEG)) {
-                    self.screenShotNumber += 1;
+                if (resizeImage) {
+                    if (self.writeCGImage(self.resizeImage(img, maxWidth: Float(width), maxHeight: Float(height))!, url, kUTTypeJPEG)) {
+                        self.screenShotNumber += 1;
+                    }
                 }
-            }
-            else {
-                if (self.writeCGImage(img, url, kUTTypeJPEG)) {
-                    self.screenShotNumber += 1;
+                else {
+                    if (self.writeCGImage(img, url, kUTTypeJPEG)) {
+                        self.screenShotNumber += 1;
+                    }
                 }
             }
         })
@@ -105,10 +107,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func endRecording() {
         if (timer != nil) {
-            statusBarItem.button?.image = NSImage(named: "MenuBarIcon")
+            statusBarItem.button?.image = NSImage(named: "Idle")
             timer!.invalidate()
             timer = nil
         }
+    }
+    
+    func pauseRecording() {
+        recordingPause = true;
+        statusBarItem.button?.image = NSImage(named: "Paused")
+    }
+    func resumeRecording() {
+        recordingPause = false;
+        statusBarItem.button?.image = NSImage(named: "Recording")
     }
     
     func openPreference() {
