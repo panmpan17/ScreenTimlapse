@@ -47,6 +47,11 @@ struct ContentView: View {
                 }) {
                     Text("End Recording")
                 }.disabled(!isRecording)
+                
+                Button (action: self.appDelegate.exportVideos) {
+                    Text("Export Video")
+                }
+                
                 Button (action: self.appDelegate.openPreference) {
                     Text("Preference")
                 }

@@ -8,6 +8,8 @@
 
 import SwiftUI
 
+var ImageType = ["PNG", "JPEG"]
+
 struct Preference: View {
     var appDelegate: AppDelegate?
 
@@ -96,15 +98,21 @@ struct Preference: View {
                     TextField("Pixel", text: $resizeHeight).multilineTextAlignment(.trailing).frame(idealWidth: 100, maxWidth: 100)
                 }.disabled(!resizeImg)
             }
+            
+            VStack (spacing: 0) {
+                Text("Image Type")
+                
+            }
+            
             Spacer()
-                HStack () {
-                    Button (action: self.closeWindow) {
-                        Text("Cancel")
-                    }
-                    Button (action: self.saveChanges) {
-                        Text("Save").frame(idealWidth: 120, maxWidth: 120)
-                    }
-                }.frame(idealWidth: 300, maxWidth: 300)
+            HStack () {
+                Button (action: self.closeWindow) {
+                    Text("Cancel")
+                }
+                Button (action: self.saveChanges) {
+                    Text("Save").frame(idealWidth: 120, maxWidth: 120)
+                }
+            }.frame(idealWidth: 300, maxWidth: 300)
         }.padding(10).frame(idealWidth: 400, maxWidth: 400, idealHeight: 200, maxHeight: 200)
     }
     
@@ -117,6 +125,9 @@ struct Preference: View {
         openPanel.canChooseFiles = false
         openPanel.allowsMultipleSelection = false
         openPanel.canCreateDirectories = true
+        
+        
+        openPanel.directoryURL = URL(fileURLWithPath: exportPath)
 //        openPanel.delegate = self;
         
         if (openPanel.runModal() == NSApplication.ModalResponse.OK) {
@@ -136,12 +147,8 @@ struct Preference: View {
         let defaults = UserDefaults.standard
         let interval: Float = intervalI
 
-        guard let width: Int = (resizeWidth as NSString).integerValue else {
-            return
-        }
-        guard let height: Int = (resizeHeight as NSString).integerValue else {
-            return
-        }
+        let width: Int = (resizeWidth as NSString).integerValue
+        let height: Int = (resizeHeight as NSString).integerValue
 
         defaults.set(exportPath, forKey: "ExportPath")
         defaults.set(resizeImg, forKey: "ResizeImage")

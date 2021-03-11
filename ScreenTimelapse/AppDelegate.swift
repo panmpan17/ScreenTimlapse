@@ -8,6 +8,7 @@
 
 import Cocoa
 import SwiftUI
+import AVFoundation
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -120,6 +121,44 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func resumeRecording() {
         recordingPause = false;
         statusBarItem.button?.image = NSImage(named: "Recording")
+    }
+    
+    func exportVideos() {
+        let defaults = UserDefaults.standard
+        var exportPath = defaults.string(forKey: "ExportPath")!
+
+        let openPanel = NSOpenPanel();
+        openPanel.title = "Select Export Folder"
+        openPanel.message = ""
+        openPanel.showsResizeIndicator = true
+        openPanel.canChooseDirectories = true
+        openPanel.canChooseFiles = false
+        openPanel.allowsMultipleSelection = false
+        openPanel.canCreateDirectories = true
+        
+        
+        openPanel.directoryURL = URL(fileURLWithPath: exportPath)
+
+        if (openPanel.runModal() == NSApplication.ModalResponse.OK) {
+            let result = openPanel.url
+            
+            do {
+                let fileURLs = try FileManager.default.contentsOfDirectory(at: URL(fileURLWithPath: result!.path), includingPropertiesForKeys: nil)
+                
+                var array: [NSImage] = []
+                
+                for file in fileURLs {
+//                    let imageData: NSData = NSData(contentsOf: file.absoluteURL)!
+//                    let image = CGImage
+                    let image = NSImage(byReferencing: file.absoluteURL)
+                    array.append(image)
+                }
+
+                print(array)
+            } catch {
+                print("Error while enumerating files")
+            }
+        }
     }
     
     func openPreference() {
